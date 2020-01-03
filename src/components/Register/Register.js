@@ -12,15 +12,15 @@ class Register extends React.Component {
 
   onNameChange = (event) => {
     this.setState({name: event.target.value})
-  }
+  };
 
   onEmailChange = (event) => {
     this.setState({email: event.target.value})
-  }
+  };
 
   onPasswordChange = (event) => {
     this.setState({password: event.target.value})
-  }
+  };
 
   onSubmitSignIn = () => {
     fetch('http://localhost:3000/register', {
@@ -39,7 +39,7 @@ class Register extends React.Component {
           this.props.onRouteChange('home');
         }
       })
-  }
+  };
 
   render() {
     return (
