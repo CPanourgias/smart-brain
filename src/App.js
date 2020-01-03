@@ -27,7 +27,7 @@ const initialState = {
   input: '',
   imageUrl: '',
   boxes: [],
-  route: 'signin',
+  route: 'signIn',
   isSignedIn: false,
   isProfileOpen: false,
   user: {
@@ -45,6 +45,37 @@ class App extends Component {
   constructor() {
     super();
     this.state = initialState;
+  }
+
+  componentDidMount() {
+    const token = window.sessionStorage.getItem('token');
+    if (token) {
+      fetch('http://localhost:3000/signIn', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token
+        },
+      })
+          .then(r => r.json())
+          .then(data => {
+            if(data && data.id) {
+              fetch(`http://localhost:3000/profile/${data.id}`, {
+                method: 'get',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': token
+                }
+              }).then(r => r.json())
+                .then(user => {
+                  if(user && user.email) {
+                    this.loadUser(user);
+                    this.onRouteChange('home');
+                  }
+                })
+            }
+          }).catch(console.log)
+    }
   }
 
   loadUser = (data) => {
@@ -153,7 +184,7 @@ class App extends Component {
               <FaceRecognition boxes={boxes} imageUrl={imageUrl} />
             </div>
           : (
-             route === 'signin'
+             route === 'signIn'
              ? <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
              : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange}/>
             )

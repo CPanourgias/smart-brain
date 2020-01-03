@@ -11,14 +11,18 @@ class Signin extends React.Component {
 
   onEmailChange = (event) => {
     this.setState({signInEmail: event.target.value})
-  }
+  };
 
   onPasswordChange = (event) => {
     this.setState({signInPassword: event.target.value})
-  }
+  };
+
+  saveAuthTokenInSession = (token) => {
+    window.sessionStorage.setItem('token', token);
+  };
 
   onSubmitSignIn = () => {
-    fetch('http://localhost:3000/signin', {
+    fetch('http://localhost:3000/signIn', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -27,13 +31,25 @@ class Signin extends React.Component {
       })
     })
       .then(response => response.json())
-      .then(user => {
-        if (user.id) {
-          this.props.loadUser(user)
-          this.props.onRouteChange('home');
+      .then(data => {
+        if (data.userId && data.success === 'true') {
+          this.saveAuthTokenInSession(data.token);
+          fetch(`http://localhost:3000/profile/${data.userId}`, {
+            method: 'get',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': data.token
+            }
+          }).then(r => r.json())
+            .then(user => {
+              if(user && user.email) {
+                this.props.loadUser(user);
+                this.props.onRouteChange('home');
+              }
+            })
         }
       })
-  }
+  };
 
   render() {
     const { onRouteChange } = this.props;
